@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   const igId = "17841406331656186"
-  const pageId = "1273762529149430"
+  const pageId = "61591681991873"
   const igToken = process.env.INSTAGRAM_ACCESS_TOKEN
   const pageToken = process.env.FACEBOOK_PAGE_ACCESS_TOKEN || process.env.INSTAGRAM_ACCESS_TOKEN
 
