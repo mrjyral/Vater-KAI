@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
-import { buildAuthUrl } from '@/lib/instagram'
+
 export async function GET() {
-  const url = buildAuthUrl()
-  return NextResponse.redirect(url)
+  const params = new URLSearchParams({
+    client_id: process.env.FACEBOOK_APP_ID!,
+    redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/instagram/callback`,
+    scope: 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,pages_show_list,pages_messaging,pages_read_engagement,business_management',
+    response_type: 'code',
+    state: 'vaterkai'
+  })
+  return NextResponse.redirect(`https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`)
 }
