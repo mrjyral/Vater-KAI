@@ -54,4 +54,3 @@ export async function GET(req: NextRequest) {
       <p>Danach Redeploy!</p>
     </body></html>
   `, { headers: { 'Content-Type': 'text/html' } })
-
