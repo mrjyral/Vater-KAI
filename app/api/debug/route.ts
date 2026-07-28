@@ -20,4 +20,4 @@ export async function GET() {
     token_len: token?.length || 0,
     ig_api_test: igTest
   })
-}
+
