@@ -1,23 +1,23 @@
-export async function GET() {
-  const token = process.env.INSTAGRAM_ACCESS_TOKEN!
-  const igId = process.env.INSTAGRAM_BUSINESS_ID!
-  const fbId = process.env.FACEBOOK_PAGE_ID!
-  
-  let igTest: any = null
-  try {
-    const url = `https://graph.facebook.com/v19.0/${igId}/conversations?platform=instagram&limit=2&access_token=${token}`
-    const r = await fetch(url)
-    igTest = await r.json()
-  } catch (e: any) {
-    igTest = { error: e?.message || 'fetch failed' }
-  }
+import { NextResponse } from 'next/server'
 
-  return Response.json({
-    has_ig_token: !!process.env.INSTAGRAM_ACCESS_TOKEN,
-    has_fb_token: !!process.env.FACEBOOK_PAGE_ACCESS_TOKEN,
+export async function GET() {
+  const igId = "17841406331656186"
+  const pageId = process.env.FACEBOOK_PAGE_ID || "1273762529149430"
+  const igToken = process.env.INSTAGRAM_ACCESS_TOKEN
+  const fbToken = process.env.FACEBOOK_PAGE_ACCESS_TOKEN
+
+  let igTest = null
+  try {
+    const r = await fetch(`https://graph.facebook.com/v19.0/${igId}/conversations?platform=instagram&access_token=${igToken}`)
+    igTest = await r.json()
+  } catch(e:any){ igTest = { error: e.message } }
+
+  return NextResponse.json({
+    has_ig_token: !!igToken,
+    has_fb_token: !!fbToken,
     ig_id: igId,
-    page_id: fbId,
-    token_len: token?.length || 0,
+    page_id: pageId,
+    token_len: igToken?.length || 0,
     ig_api_test: igTest
   })
 }
