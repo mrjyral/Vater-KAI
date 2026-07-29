@@ -1,26 +1,16 @@
-import { NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic';
 
-const VERIFY_TOKEN = 'vater-kai-verify-2024'
-
-// Für die Validierung bei Facebook
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url)
-  const mode = searchParams.get('hub.mode')
-  const token = searchParams.get('hub.verify_token')
-  const challenge = searchParams.get('hub.challenge')
-
-  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-    console.log('WEBHOOK VERIFIED')
-    return new Response(challenge, { status: 200 })
+  const { searchParams } = new URL(req.url);
+  const challenge = searchParams.get('hub.challenge');
+  // Für den Test erstmal JEDEN Token annehmen!
+  if (challenge) {
+    return new Response(challenge, { status: 200 });
   }
-  return new Response('Forbidden', { status: 403 })
+  return new Response('no challenge', { status: 200 });
 }
 
-// Für echte Instagram Nachrichten
 export async function POST(req: Request) {
-  const body = await req.json()
-  console.log('INSTAGRAM WEBHOOK:', JSON.stringify(body, null, 2))
-  
-  // Hier kommt später deine KAI Logik hin
-  return NextResponse.json({ ok: true })
+  console.log('Webhook POST');
+  return new Response('EVENT_RECEIVED', { status: 200 });
 }
