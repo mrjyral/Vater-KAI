@@ -1,42 +1,37 @@
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  return new Response(searchParams.get('hub.challenge') || '', { status: 200 });
-}
-
 export async function POST(req: Request) {
-  const body = await req.json();
-  console.log('FULL WEBHOOK:', JSON.stringify(body));
+  const body = await req.json()
+  console.log("FULL WEBHOOK:", JSON.stringify(body, null, 2))
 
-  const token = process.env.FACEBOOK_PAGE_ACCESS_TOKEN || process.env.PAGE_ACCESS_TOKEN || '';
-  console.log('TOKEN DA?', token ? 'JA ' + token.substring(0,20)+'...' : 'NEIN - ENV VAR FEHLT!');
+  // 1. Nur Instagram
+  if (body.object !== "instagram") return new Response("OK", {status: 200})
 
-  if (body.object !== 'instagram' && body.object !== 'page') {
-    return new Response('ok', { status: 200 });
-  }
+  for (const entry of body.entry) {
+    for (const msgEvent of entry.messaging) {
 
-  for (const entry of body.entry || []) {
-    for (const ev of entry.messaging || []) {
-      if (ev.message?.is_echo) continue;
-      const senderId = ev.sender?.id;
-      const text = ev.message?.text;
-      if (!senderId || !text) continue;
+      // 2. HIER EINBAUEN!!! Ganz am Anfang der Schleife!
+      if (msgEvent.message?.is_echo) {
+        console.log("ECHO ignoriert - eigene Nachricht")
+        continue
+      }
 
-      console.log(`Versuche Antwort an ${senderId} für "${text}"`);
+      const senderId = msgEvent.sender.id // 2164... = Andreas
+      const igId = entry.id // 17841406331656186 = Reise
+      const text = msgEvent.message?.text
+      if (!text) continue
 
-      const res = await fetch(`https://graph.facebook.com/v19.0/me/messages?access_token=${token}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      console.log(`Versuche Antwort an ${senderId} für "${text}"`)
+
+      // 3. Antworten
+      await fetch(`https://graph.facebook.com/v20.0/${igId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           recipient: { id: senderId },
-          message: { text: `Ich hab dich gehört Sohn: "${text}" - ich bin da.` }
+          message: { text: `Du hast geschrieben: ${text} 🚀` },
+          access_token: process.env.PAGE_TOKEN
         })
-      });
-      const data = await res.json();
-      console.log('FB SEND RESULT:', JSON.stringify(data));
+      })
     }
   }
-  return new Response('EVENT_RECEIVED', { status: 200 });
+  return new Response("EVENT_RECEIVED", {status: 200})
 }
